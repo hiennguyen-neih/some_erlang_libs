@@ -1,0 +1,452 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Module con_lists</title>
+<link rel="stylesheet" type="text/css" href="stylesheet.css" title="EDoc">
+</head>
+<body bgcolor="white">
+<div class="navbar"><a name="#navbar_top"></a><table width="100%" border="0" cellspacing="0" cellpadding="2" summary="navigation bar"><tr><td><a href="overview-summary.html" target="overviewFrame">Overview</a></td><td><a href="http://www.erlang.org/"><img src="erlang.png" align="right" border="0" alt="erlang logo"></a></td></tr></table></div>
+<hr>
+
+<h1>Module con_lists</h1>
+<ul class="index"><li><a href="#description">Description</a></li><li><a href="#index">Function Index</a></li><li><a href="#functions">Function Details</a></li></ul>
+   <pre>
+       Concurence lists module without supervisor.
+       This module run faster than with supervisor module but less reliable.
+  
+       Every function in this module will returns atom timeout if Timeout occurs.
+  
+       NOTE: You only should only use this module when have to do a not-too-long list of very
+   complex functions.
+   </pre>
+
+
+<h2><a name="description">Description</a></h2>
+   <pre>
+       Concurence lists module without supervisor.
+       This module run faster than with supervisor module but less reliable.
+  
+       Every function in this module will returns atom timeout if Timeout occurs.
+  
+       NOTE: You only should only use this module when have to do a not-too-long list of very
+   complex functions.
+   </pre>
+<h2><a name="index">Function Index</a></h2>
+<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#all-2">all/2</a></td><td>Equivalent to <a href="con_lists.html#all-3"><tt>con_lists:all(Fun, List, 10000)</tt></a>.
+</td></tr>
+<tr><td valign="top"><a href="#all-3">all/3</a></td><td>
+   <pre>
+   <h4><a name="Type">Type</a></h4>
+       Fun = fun((Ele::Term) -&gt; boolean())
+       List = [Term]
+       Term = term()
+       Timeout = integer() | infinity
+   <h4><a name="Description">Description</a></h4>
+       Returns true if Fun(Ele) returns true for all elements Ele in List, returns false if
+   Fun(Ele) returns false for at least one element Ele in List.
+   <h4><a name="Example">Example</a></h4>
+   <pre>       con_lists:all(fun(X) -&gt; X rem 2 == 0 end, [1, 2, 3, 4, 5], 10000).</pre>
+   </pre></td></tr>
+<tr><td valign="top"><a href="#any-2">any/2</a></td><td>Equivalent to <a href="con_lists.html#any-3"><tt>con_lists:any(Fun, List, 10000)</tt></a>.
+</td></tr>
+<tr><td valign="top"><a href="#any-3">any/3</a></td><td>
+   <pre>
+   <h4><a name="Type">Type</a></h4>
+       Fun = fun((Ele::Term) -&gt; boolean())
+       List = [Term]
+       Term = term()
+       Timeout = integer() | infinity
+   <h4><a name="Description">Description</a></h4>
+       Returns true if Fun(Ele) returns true for at least one element Ele in List, returns false
+   if Fun(Ele) returns false for all elements Ele in List.
+   <h4><a name="Example">Example</a></h4>
+   <pre>       con_lists:any(fun(X) -&gt; X rem 2 == 0 end, [1, 2, 3, 4, 5], 10000).</pre>
+   </pre></td></tr>
+<tr><td valign="top"><a href="#dropmap-2">dropmap/2</a></td><td>Equivalent to <a href="con_lists.html#dropmap-3"><tt>con_lists:dropmap(Fun, List, 10000)</tt></a>.
+</td></tr>
+<tr><td valign="top"><a href="#dropmap-3">dropmap/3</a></td><td>
+   <pre>
+   <h4><a name="Type">Type</a></h4>
+       Fun = fun((Ele::Term) -&gt; boolean() | {false, Value})
+       List = [Ele]
+       List1 = [Ele | Value]
+       Ele = Value = term()
+       Timeout = integer() | infinity
+   <h4><a name="Description">Description</a></h4>
+       Calls Fun(Ele) on succssive elements Ele of List1. Fun/1 must return either a boolean or a
+   tuple {false, Value}. The function returns the list of elements for which Fun returns a new
+   value, where a value of false is synonymous with {false, Ele}.
+       This function basically oposite of filtermap/2 and filtermap/3.
+   <h4><a name="Example">Example</a></h4>
+   <pre>       con_lists:dropmap(fun(X) -&gt; case X rem 2 of 0 -&gt; true; _ -&gt; {false, X*3} end end,
+                         [1, 2, 3, 4, 5], 10000).</pre>
+   </pre></td></tr>
+<tr><td valign="top"><a href="#filter-2">filter/2</a></td><td>Equivalent to <a href="con_lists.html#filter-3"><tt>con_lists:filter(Fun, List, 10000)</tt></a>.
+</td></tr>
+<tr><td valign="top"><a href="#filter-3">filter/3</a></td><td>
+   <pre>
+   <h4><a name="Type">Type</a></h4>
+       Fun = fun((Ele :: Term) -&gt; boolean())
+       List = List1 = [Term]
+       Term = term()
+       Timeout = integer() | infinity
+   <h4><a name="Description">Description</a></h4>
+       Returns List1 is a list of all elements Elem in List for which Fun(Ele) returns true.
+   <h4><a name="Example">Example</a></h4>
+   <pre>       con_lists:filter(fun(X) -&gt; X rem 2 == 0 end, [1, 2, 3, 4, 5], 10000).</pre>
+   </pre></td></tr>
+<tr><td valign="top"><a href="#filtermap-2">filtermap/2</a></td><td>Equivalent to <a href="con_lists.html#filtermap-3"><tt>con_lists:filtermap(Fun, List, 10000)</tt></a>.
+</td></tr>
+<tr><td valign="top"><a href="#filtermap-3">filtermap/3</a></td><td>
+   <pre>
+   <h4><a name="Type">Type</a></h4>
+       Fun = fun((Ele) -&gt; boolean() | {true, Value})
+       List = [Ele]
+       List1 = [Ele | Value]
+       Ele = Value = term()
+       Timeout = integer() | infinity
+   <h4><a name="Description">Description</a></h4>
+       Calls Fun(Ele) on succssive elements Ele of List1. Fun/1 must return either a boolean or a
+   tuple {true, Value}. The function returns the list of elements for which Fun returns a new
+   value, where a value of true is synonymous with {true, Ele}.
+   <h4><a name="Example">Example</a></h4>
+   <pre>       con_lists:filtermap(fun(X) -&gt; case X rem 2 of 0 -&gt; {true, X div 2}; _ -&gt; false end end,
+                           [1, 2, 3, 4, 5], 10000).</pre>
+   </pre></td></tr>
+<tr><td valign="top"><a href="#flatmap-2">flatmap/2</a></td><td>Equivalent to <a href="con_lists.html#flatmap-3"><tt>con_lists:flatmap(Fun, List, 10000)</tt></a>.
+</td></tr>
+<tr><td valign="top"><a href="#flatmap-3">flatmap/3</a></td><td>
+   <pre>
+   <h4><a name="Type">Type</a></h4>
+       Fun = fun((A) -&gt; B)
+       List = [A]
+       List1 = [B]
+       A = B = term()
+       Timeout = integer() | infinity
+   <h4><a name="Description">Description</a></h4>
+       Takes a function from As to Bs, and a list of As and produces a list of Bs by applying the
+   function to every element in the list. This function is used to obtain the return values. The
+   evaluation order depends on the implementation.
+   <h4><a name="Example">Example</a></h4>
+   <pre>       con_lists:flatmap(fun(X) -&gt; [X, [X]] end, [n, e, i, h], 10000).</pre>
+   </pre></td></tr>
+<tr><td valign="top"><a href="#foreach-2">foreach/2</a></td><td>Equivalent to <a href="con_lists.html#foreach-3"><tt>con_lists:foreach(Fun, List, 10000)</tt></a>.
+</td></tr>
+<tr><td valign="top"><a href="#foreach-3">foreach/3</a></td><td>
+   <pre>
+   <h4><a name="Type">Type</a></h4>
+       Fun = fun((Ele :: T) -&gt; term())
+       List = [T]
+       T = term()
+       Timeout = integer() | infinity
+   <h4><a name="Description">Description</a></h4>
+       Calls Fun(Ele) for each element Ele in List. This function is used for its side effects and
+   the evaluation order may not be the same as the order of the elements in the list.
+   <h4><a name="Example">Example</a></h4>
+   <pre>       con_lists:foreach(fun(X) -&gt; io:format("~p ", [X]) end, [165, 137, 140, 215], 10000).</pre>
+   </pre></td></tr>
+<tr><td valign="top"><a href="#keymap-3">keymap/3</a></td><td>Equivalent to <a href="con_lists.html#keymap-3"><tt>con_lists:keymap(Fun, List, 10000)</tt></a>.
+</td></tr>
+<tr><td valign="top"><a href="#keymap-4">keymap/4</a></td><td>
+   <pre>
+   <h4><a name="Type">Type</a></h4>
+       Fun = fun((Term :: term()) -&gt; Term1 :: term())
+       N = interger() &gt;= 1
+        1..tuple_size(Tuple)
+       TupleList = TupleList1 = [Tuple]
+       Tuple = tuple()
+       Timeout = integer() | infinity
+   <h4><a name="Description">Description</a></h4>
+       Returns a list of tuples where, for each tuple in TupleList, the Nth element Term of the
+   tuple has been replaced with the result of calling Fun(Term).
+   <h4><a name="Example">Example</a></h4>
+   <pre>       con_lists:keymap(fun(X) -&gt; X div 2 end, 2, [{a, 329}, {b, 276}, {c, 323}, {d, 430}], 10000).</pre>
+   </pre></td></tr>
+<tr><td valign="top"><a href="#map-2">map/2</a></td><td>Equivalent to <a href="con_lists.html#map-3"><tt>con_lists:map(Fun, List, 10000)</tt></a>.
+</td></tr>
+<tr><td valign="top"><a href="#map-3">map/3</a></td><td>
+   <pre>
+   <h4><a name="Type">Type</a></h4>
+       Fun = fun((A) -&gt; B)
+       List = [A]
+       List1 = [B]
+       A = B = term()
+       Timeout = integer() | infinity
+   <h4><a name="Description">Description</a></h4>
+       Takes a function from As to Bs, and a list of As and produces a list of Bs by applying the
+   function to every element in the list. This function is used to obtain the return values. The
+   evaluation order depends on the implementation.
+   <h4><a name="Example">Example</a></h4>
+   <pre>       con_lists:map(fun(X) -&gt; X*2 end, [1, 2, 3, 4, 5], 10000).</pre>
+   </pre></td></tr>
+<tr><td valign="top"><a href="#partition-2">partition/2</a></td><td>Equivalent to <a href="con_lists.html#partition-3"><tt>con_lists:partition(Fun, List, 10000)</tt></a>.
+</td></tr>
+<tr><td valign="top"><a href="#partition-3">partition/3</a></td><td>
+   <pre>
+   <h4><a name="Type">Type</a></h4>
+       Fun = fun((Ele :: T) -&gt; boolean())
+       List = Satisfying = NotSatisfying = [T]
+       T = term()
+       Timeout = integer() | infinity
+   <h4><a name="Description">Description</a></h4>
+       Partitions List into twolists, where the first list contains all elements for which
+   Fun(Ele) returns true, and the second list contains all elements for which Fun(Ele) returns
+   false.
+   <h4><a name="Example">Example</a></h4>
+   <pre>       con_lists:partition(fun(X) -&gt; X rem 2 == 0 end, [454, 431, 272, 359, 280, 457, 430, 479],
+                           10000).</pre>
+   </pre></td></tr>
+</table>
+
+<h2><a name="functions">Function Details</a></h2>
+
+<h3 class="function"><a name="all-2">all/2</a></h3>
+<div class="spec">
+<p><tt>all(Fun, List) -&gt; boolean() | timeout</tt><br></p>
+</div><p>Equivalent to <a href="con_lists.html#all-3"><tt>con_lists:all(Fun, List, 10000)</tt></a>.</p>
+
+
+<h3 class="function"><a name="all-3">all/3</a></h3>
+<div class="spec">
+<p><tt>all(Fun, List, Timeout) -&gt; boolean() | timeout</tt><br></p>
+</div><p>
+   <pre>
+   <h4><a name="Type">Type</a></h4>
+       Fun = fun((Ele::Term) -&gt; boolean())
+       List = [Term]
+       Term = term()
+       Timeout = integer() | infinity
+   <h4><a name="Description">Description</a></h4>
+       Returns true if Fun(Ele) returns true for all elements Ele in List, returns false if
+   Fun(Ele) returns false for at least one element Ele in List.
+   <h4><a name="Example">Example</a></h4>
+   <pre>       con_lists:all(fun(X) -&gt; X rem 2 == 0 end, [1, 2, 3, 4, 5], 10000).</pre>
+   </pre></p>
+
+<h3 class="function"><a name="any-2">any/2</a></h3>
+<div class="spec">
+<p><tt>any(Fun, List) -&gt; boolean() | timeout</tt><br></p>
+</div><p>Equivalent to <a href="con_lists.html#any-3"><tt>con_lists:any(Fun, List, 10000)</tt></a>.</p>
+
+
+<h3 class="function"><a name="any-3">any/3</a></h3>
+<div class="spec">
+<p><tt>any(Fun, List, Timeout) -&gt; boolean() | timeout</tt><br></p>
+</div><p>
+   <pre>
+   <h4><a name="Type">Type</a></h4>
+       Fun = fun((Ele::Term) -&gt; boolean())
+       List = [Term]
+       Term = term()
+       Timeout = integer() | infinity
+   <h4><a name="Description">Description</a></h4>
+       Returns true if Fun(Ele) returns true for at least one element Ele in List, returns false
+   if Fun(Ele) returns false for all elements Ele in List.
+   <h4><a name="Example">Example</a></h4>
+   <pre>       con_lists:any(fun(X) -&gt; X rem 2 == 0 end, [1, 2, 3, 4, 5], 10000).</pre>
+   </pre></p>
+
+<h3 class="function"><a name="dropmap-2">dropmap/2</a></h3>
+<div class="spec">
+<p><tt>dropmap(Fun, List) -&gt; List1 | timeout</tt><br></p>
+</div><p>Equivalent to <a href="con_lists.html#dropmap-3"><tt>con_lists:dropmap(Fun, List, 10000)</tt></a>.</p>
+
+
+<h3 class="function"><a name="dropmap-3">dropmap/3</a></h3>
+<div class="spec">
+<p><tt>dropmap(Fun, List, Timeout) -&gt; List1 | timeout</tt><br></p>
+</div><p>
+   <pre>
+   <h4><a name="Type">Type</a></h4>
+       Fun = fun((Ele::Term) -&gt; boolean() | {false, Value})
+       List = [Ele]
+       List1 = [Ele | Value]
+       Ele = Value = term()
+       Timeout = integer() | infinity
+   <h4><a name="Description">Description</a></h4>
+       Calls Fun(Ele) on succssive elements Ele of List1. Fun/1 must return either a boolean or a
+   tuple {false, Value}. The function returns the list of elements for which Fun returns a new
+   value, where a value of false is synonymous with {false, Ele}.
+       This function basically oposite of filtermap/2 and filtermap/3.
+   <h4><a name="Example">Example</a></h4>
+   <pre>       con_lists:dropmap(fun(X) -&gt; case X rem 2 of 0 -&gt; true; _ -&gt; {false, X*3} end end,
+                         [1, 2, 3, 4, 5], 10000).</pre>
+   </pre></p>
+
+<h3 class="function"><a name="filter-2">filter/2</a></h3>
+<div class="spec">
+<p><tt>filter(Fun, List) -&gt; List1 | timeout</tt><br></p>
+</div><p>Equivalent to <a href="con_lists.html#filter-3"><tt>con_lists:filter(Fun, List, 10000)</tt></a>.</p>
+
+
+<h3 class="function"><a name="filter-3">filter/3</a></h3>
+<div class="spec">
+<p><tt>filter(Fun, List, Timeout) -&gt; List1 | timeout</tt><br></p>
+</div><p>
+   <pre>
+   <h4><a name="Type">Type</a></h4>
+       Fun = fun((Ele :: Term) -&gt; boolean())
+       List = List1 = [Term]
+       Term = term()
+       Timeout = integer() | infinity
+   <h4><a name="Description">Description</a></h4>
+       Returns List1 is a list of all elements Elem in List for which Fun(Ele) returns true.
+   <h4><a name="Example">Example</a></h4>
+   <pre>       con_lists:filter(fun(X) -&gt; X rem 2 == 0 end, [1, 2, 3, 4, 5], 10000).</pre>
+   </pre></p>
+
+<h3 class="function"><a name="filtermap-2">filtermap/2</a></h3>
+<div class="spec">
+<p><tt>filtermap(Fun, List) -&gt; List1 | timeout</tt><br></p>
+</div><p>Equivalent to <a href="con_lists.html#filtermap-3"><tt>con_lists:filtermap(Fun, List, 10000)</tt></a>.</p>
+
+
+<h3 class="function"><a name="filtermap-3">filtermap/3</a></h3>
+<div class="spec">
+<p><tt>filtermap(Fun, List, Timeout) -&gt; List1 | timeout</tt><br></p>
+</div><p>
+   <pre>
+   <h4><a name="Type">Type</a></h4>
+       Fun = fun((Ele) -&gt; boolean() | {true, Value})
+       List = [Ele]
+       List1 = [Ele | Value]
+       Ele = Value = term()
+       Timeout = integer() | infinity
+   <h4><a name="Description">Description</a></h4>
+       Calls Fun(Ele) on succssive elements Ele of List1. Fun/1 must return either a boolean or a
+   tuple {true, Value}. The function returns the list of elements for which Fun returns a new
+   value, where a value of true is synonymous with {true, Ele}.
+   <h4><a name="Example">Example</a></h4>
+   <pre>       con_lists:filtermap(fun(X) -&gt; case X rem 2 of 0 -&gt; {true, X div 2}; _ -&gt; false end end,
+                           [1, 2, 3, 4, 5], 10000).</pre>
+   </pre></p>
+
+<h3 class="function"><a name="flatmap-2">flatmap/2</a></h3>
+<div class="spec">
+<p><tt>flatmap(Fun, List) -&gt; List1 | timeout</tt><br></p>
+</div><p>Equivalent to <a href="con_lists.html#flatmap-3"><tt>con_lists:flatmap(Fun, List, 10000)</tt></a>.</p>
+
+
+<h3 class="function"><a name="flatmap-3">flatmap/3</a></h3>
+<div class="spec">
+<p><tt>flatmap(Fun, List, Timeout) -&gt; List1 | timeout</tt><br></p>
+</div><p>
+   <pre>
+   <h4><a name="Type">Type</a></h4>
+       Fun = fun((A) -&gt; B)
+       List = [A]
+       List1 = [B]
+       A = B = term()
+       Timeout = integer() | infinity
+   <h4><a name="Description">Description</a></h4>
+       Takes a function from As to Bs, and a list of As and produces a list of Bs by applying the
+   function to every element in the list. This function is used to obtain the return values. The
+   evaluation order depends on the implementation.
+   <h4><a name="Example">Example</a></h4>
+   <pre>       con_lists:flatmap(fun(X) -&gt; [X, [X]] end, [n, e, i, h], 10000).</pre>
+   </pre></p>
+
+<h3 class="function"><a name="foreach-2">foreach/2</a></h3>
+<div class="spec">
+<p><tt>foreach(Fun, List) -&gt; ok | timeout</tt><br></p>
+</div><p>Equivalent to <a href="con_lists.html#foreach-3"><tt>con_lists:foreach(Fun, List, 10000)</tt></a>.</p>
+
+
+<h3 class="function"><a name="foreach-3">foreach/3</a></h3>
+<div class="spec">
+<p><tt>foreach(Fun, List, Timeout) -&gt; ok | timeout</tt><br></p>
+</div><p>
+   <pre>
+   <h4><a name="Type">Type</a></h4>
+       Fun = fun((Ele :: T) -&gt; term())
+       List = [T]
+       T = term()
+       Timeout = integer() | infinity
+   <h4><a name="Description">Description</a></h4>
+       Calls Fun(Ele) for each element Ele in List. This function is used for its side effects and
+   the evaluation order may not be the same as the order of the elements in the list.
+   <h4><a name="Example">Example</a></h4>
+   <pre>       con_lists:foreach(fun(X) -&gt; io:format("~p ", [X]) end, [165, 137, 140, 215], 10000).</pre>
+   </pre></p>
+
+<h3 class="function"><a name="keymap-3">keymap/3</a></h3>
+<div class="spec">
+<p><tt>keymap(Fun, N, List::TupleList) -&gt; TupleList1 | timeout</tt><br></p>
+</div><p>Equivalent to <a href="con_lists.html#keymap-3"><tt>con_lists:keymap(Fun, List, 10000)</tt></a>.</p>
+
+
+<h3 class="function"><a name="keymap-4">keymap/4</a></h3>
+<div class="spec">
+<p><tt>keymap(Fun, N, List::TupleList, Timeout) -&gt; TupleList1 | timeout</tt><br></p>
+</div><p>
+   <pre>
+   <h4><a name="Type">Type</a></h4>
+       Fun = fun((Term :: term()) -&gt; Term1 :: term())
+       N = interger() &gt;= 1
+        1..tuple_size(Tuple)
+       TupleList = TupleList1 = [Tuple]
+       Tuple = tuple()
+       Timeout = integer() | infinity
+   <h4><a name="Description">Description</a></h4>
+       Returns a list of tuples where, for each tuple in TupleList, the Nth element Term of the
+   tuple has been replaced with the result of calling Fun(Term).
+   <h4><a name="Example">Example</a></h4>
+   <pre>       con_lists:keymap(fun(X) -&gt; X div 2 end, 2, [{a, 329}, {b, 276}, {c, 323}, {d, 430}], 10000).</pre>
+   </pre></p>
+
+<h3 class="function"><a name="map-2">map/2</a></h3>
+<div class="spec">
+<p><tt>map(Fun, List) -&gt; List1 | timeout</tt><br></p>
+</div><p>Equivalent to <a href="con_lists.html#map-3"><tt>con_lists:map(Fun, List, 10000)</tt></a>.</p>
+
+
+<h3 class="function"><a name="map-3">map/3</a></h3>
+<div class="spec">
+<p><tt>map(Fun, List, Timeout) -&gt; List1 | timeout</tt><br></p>
+</div><p>
+   <pre>
+   <h4><a name="Type">Type</a></h4>
+       Fun = fun((A) -&gt; B)
+       List = [A]
+       List1 = [B]
+       A = B = term()
+       Timeout = integer() | infinity
+   <h4><a name="Description">Description</a></h4>
+       Takes a function from As to Bs, and a list of As and produces a list of Bs by applying the
+   function to every element in the list. This function is used to obtain the return values. The
+   evaluation order depends on the implementation.
+   <h4><a name="Example">Example</a></h4>
+   <pre>       con_lists:map(fun(X) -&gt; X*2 end, [1, 2, 3, 4, 5], 10000).</pre>
+   </pre></p>
+
+<h3 class="function"><a name="partition-2">partition/2</a></h3>
+<div class="spec">
+<p><tt>partition(Fun, List) -&gt; {Satisfying, NotSatisfying} | timeout</tt><br></p>
+</div><p>Equivalent to <a href="con_lists.html#partition-3"><tt>con_lists:partition(Fun, List, 10000)</tt></a>.</p>
+
+
+<h3 class="function"><a name="partition-3">partition/3</a></h3>
+<div class="spec">
+<p><tt>partition(Fun, List, Timeout) -&gt; {Satisfying, NotSatisfying} | timeout</tt><br></p>
+</div><p>
+   <pre>
+   <h4><a name="Type">Type</a></h4>
+       Fun = fun((Ele :: T) -&gt; boolean())
+       List = Satisfying = NotSatisfying = [T]
+       T = term()
+       Timeout = integer() | infinity
+   <h4><a name="Description">Description</a></h4>
+       Partitions List into twolists, where the first list contains all elements for which
+   Fun(Ele) returns true, and the second list contains all elements for which Fun(Ele) returns
+   false.
+   <h4><a name="Example">Example</a></h4>
+   <pre>       con_lists:partition(fun(X) -&gt; X rem 2 == 0 end, [454, 431, 272, 359, 280, 457, 430, 479],
+                           10000).</pre>
+   </pre></p>
+<hr>
+
+<div class="navbar"><a name="#navbar_bottom"></a><table width="100%" border="0" cellspacing="0" cellpadding="2" summary="navigation bar"><tr><td><a href="overview-summary.html" target="overviewFrame">Overview</a></td><td><a href="http://www.erlang.org/"><img src="erlang.png" align="right" border="0" alt="erlang logo"></a></td></tr></table></div>
+<p><i>Generated by EDoc</i></p>
+</body>
+</html>

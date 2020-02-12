@@ -100,8 +100,8 @@ all(Fun, List) ->
 %%% @end
 %%%------------------------------------------------------------------------------------------------
 all(Fun, List, MaxWorkers, Timeout) ->
-    Length = erlang:length(List),
-    Self = erlang:self(),
+    Length = length(List),
+    Self = self(),
     fun_main_proc(Fun, List, MaxWorkers, Timeout, Self, Length, all_recv, [Self, Length]).
 
 %%%------------------------------------------------------------------------------------------------
@@ -133,8 +133,8 @@ any(Fun, List) ->
 %%% @end
 %%%------------------------------------------------------------------------------------------------
 any(Fun, List, MaxWorkers, Timeout) ->
-    Length = erlang:length(List),
-    Self = erlang:self(),
+    Length = length(List),
+    Self = self(),
     fun_main_proc(Fun, List, MaxWorkers, Timeout, Self, Length, any_recv, [Self, Length]).
 
 %%%------------------------------------------------------------------------------------------------
@@ -170,8 +170,8 @@ dropmap(Fun, List) ->
 %%% @end
 %%%------------------------------------------------------------------------------------------------
 dropmap(Fun, List, MaxWorkers, Timeout) ->
-    L = erlang:length(List),
-    S = erlang:self(),
+    L = length(List),
+    S = self(),
     fun_main_proc(Fun, List, MaxWorkers, Timeout, S, L, dropmap_recv, [S, L, L div 2, [], []]).
 
 %%%------------------------------------------------------------------------------------------------
@@ -202,8 +202,8 @@ filter(Fun, List) ->
 %%% @end
 %%%------------------------------------------------------------------------------------------------
 filter(Fun, List, MaxWorkers, Timeout) ->
-    L = erlang:length(List),
-    S = erlang:self(),
+    L = length(List),
+    S = self(),
     fun_main_proc(Fun, List, MaxWorkers, Timeout, S, L, filter_recv, [S, L, L div 2, [], []]).
 
 %%%------------------------------------------------------------------------------------------------
@@ -238,8 +238,8 @@ filtermap(Fun, List) ->
 %%% @end
 %%%------------------------------------------------------------------------------------------------
 filtermap(Fun, List, MaxWorkers, Timeout) ->
-    L = erlang:length(List),
-    S = erlang:self(),
+    L = length(List),
+    S = self(),
     fun_main_proc(Fun, List, MaxWorkers, Timeout, S, L, filtermap_recv, [S, L, L div 2, [], []]).
 
 %%%------------------------------------------------------------------------------------------------
@@ -304,8 +304,8 @@ foreach(Fun, List) ->
 %%% @end
 %%%------------------------------------------------------------------------------------------------
 foreach(Fun, List, MaxWorkers, Timeout) ->
-    Length = erlang:length(List),
-    Self = erlang:self(),
+    Length = length(List),
+    Self = self(),
     fun_main_proc(Fun, List, MaxWorkers, Timeout, Self, Length, foreach_recv, [Self, Length]).
 
 %%%------------------------------------------------------------------------------------------------
@@ -340,18 +340,18 @@ keymap(Fun, N, List) ->
 %%% @end
 %%%------------------------------------------------------------------------------------------------
 keymap(Fun, N, List, MaxWorkers, Timeout) ->
-    erlang:process_flag(trap_exit, true),
-    Length = erlang:length(List),
-    MPid = erlang:self(),
+    process_flag(trap_exit, true),
+    Length = length(List),
+    MPid = self(),
     NumWorkers = case MaxWorkers > Length of
                      true ->
                          Length;
                      false ->
                          MaxWorkers
                  end,
-    RPid = erlang:spawn_link(?MODULE, keymap_recv, [MPid, Length, Length div 2, [], []]),
-    SPid = erlang:spawn_link(?MODULE, sender, [MPid, List, 0]),
-    SpPid = erlang:spawn_link(?MODULE, keymap_spawner, [MPid, SPid, RPid, Fun, N, NumWorkers, []]),
+    RPid = spawn_link(?MODULE, keymap_recv, [MPid, Length, Length div 2, [], []]),
+    SPid = spawn_link(?MODULE, sender, [MPid, List, 0]),
+    SpPid = spawn_link(?MODULE, keymap_spawner, [MPid, SPid, RPid, Fun, N, NumWorkers, []]),
     receive
         {result, Result} ->
             RPid ! {MPid, exit, nornal},
@@ -362,7 +362,7 @@ keymap(Fun, N, List, MaxWorkers, Timeout) ->
             RPid ! {MPid, exit, nornal},
             SPid ! {MPid, exit, normal},
             SpPid ! {MPid, exit, normal},
-            erlang:error({proc_died, Pid, Reason})
+            error({proc_died, Pid, Reason})
     after
         Timeout ->
             RPid ! {MPid, exit, normal},
@@ -404,8 +404,8 @@ map(Fun, List) ->
 %%% @end
 %%%------------------------------------------------------------------------------------------------
 map(Fun, List, MaxWorkers, Timeout) ->
-    L = erlang:length(List),
-    S = erlang:self(),
+    L = length(List),
+    S = self(),
     fun_main_proc(Fun, List, MaxWorkers, Timeout, S, L, map_recv, [S, L, L div 2, [], []]).
 
 %%%------------------------------------------------------------------------------------------------
@@ -439,8 +439,8 @@ partition(Fun, List) ->
 %%% @end
 %%%------------------------------------------------------------------------------------------------
 partition(Fun, List, M, T) ->
-    L = erlang:length(List),
-    S = erlang:self(),
+    L = length(List),
+    S = self(),
     fun_main_proc(Fun, List, M, T, S, L, partition_recv, [S, L, L div 2, {[], []}, {[], []}]).
 
 %%%------------------------------------------------------------------------------------------------
@@ -478,16 +478,14 @@ all_recv(Pid, Counter) ->
                 true ->
                     all_recv(Pid, Counter - 1);
                 false ->
-                    Pid ! {result, true},
-                    exit(normal)
+                    Pid ! {result, true}
             end;
         {_Index, false, _Item} ->
-            Pid ! {result, false},
-            exit(normal);
+            Pid ! {result, false};
         {Pid, exit, Reason} ->
             exit(Reason);
         Error ->
-            erlang:error({badmatch, Error})
+            error({badmatch, Error})
     end.
 
 %%%------------------------------------------------------------------------------------------------
@@ -501,16 +499,14 @@ any_recv(Pid, Counter) ->
                 true ->
                     any_recv(Pid, Counter - 1);
                 false ->
-                    Pid ! {result, false},
-                    exit(normal)
+                    Pid ! {result, false}
             end;
         {_Index, true, _Item} ->
-            Pid ! {result, true},
-            exit(normal);
+            Pid ! {result, true};
         {Pid, exit, Reason} ->
             exit(Reason);
         Error ->
-            erlang:error({badmatch, Error})
+            error({badmatch, Error})
     end.
 
 %%%------------------------------------------------------------------------------------------------
@@ -524,8 +520,7 @@ dropmap_recv(Pid, Counter, Threshold, Low, High) ->
                 true ->
                     dropmap_recv(Pid, Counter - 1, Threshold, Low, High);
                 false ->
-                    Pid ! {result, sort_result(Low, High)},
-                    exit(normal)
+                    Pid ! {result, sort_result(Low, High)}
             end;
         {Index, false, Item} ->
             case Counter > 1 of
@@ -539,11 +534,9 @@ dropmap_recv(Pid, Counter, Threshold, Low, High) ->
                 false ->
                     case Index < Threshold of
                         true ->
-                            Pid ! {result, sort_result([{Index, Item} | Low], High)},
-                            exit(normal);
+                            Pid ! {result, sort_result([{Index, Item} | Low], High)};
                         false ->
-                            Pid ! {result, sort_result(Low, [{Index, Item} | High])},
-                            exit(normal)
+                            Pid ! {result, sort_result(Low, [{Index, Item} | High])}
                     end
             end;
         {Index, {false, Value}, _Item} ->
@@ -558,17 +551,15 @@ dropmap_recv(Pid, Counter, Threshold, Low, High) ->
                 false ->
                     case Index < Threshold of
                         true ->
-                            Pid ! {result, sort_result([{Index, Value} | Low], High)},
-                            exit(normal);
+                            Pid ! {result, sort_result([{Index, Value} | Low], High)};
                         false ->
-                            Pid ! {result, sort_result(Low, [{Index, Value} | High])},
-                            exit(normal)
+                            Pid ! {result, sort_result(Low, [{Index, Value} | High])}
                     end
             end;
         {Pid, exit, Reason} ->
             exit(Reason);
         Error ->
-            erlang:error({badmatch, Error})
+            error({badmatch, Error})
     end.
 
 %%%------------------------------------------------------------------------------------------------
@@ -589,11 +580,9 @@ filter_recv(Pid, Counter, Threshold, Low, High) ->
                 false ->
                     case Index < Threshold of
                         true ->
-                            Pid ! {result, sort_result([{Index, Item} | Low], High)},
-                            exit(normal);
+                            Pid ! {result, sort_result([{Index, Item} | Low], High)};
                         false ->
-                            Pid ! {result, sort_result(Low, [{Index, Item} | High])},
-                            exit(normal)
+                            Pid ! {result, sort_result(Low, [{Index, Item} | High])}
                     end
             end;
         {_Index, false, _Item} ->
@@ -601,13 +590,12 @@ filter_recv(Pid, Counter, Threshold, Low, High) ->
                 true ->
                     filter_recv(Pid, Counter - 1, Threshold, Low, High);
                 false ->
-                    Pid ! {result, sort_result(Low, High)},
-                    exit(normal)
+                    Pid ! {result, sort_result(Low, High)}
             end;
         {Pid, exit, Reason} ->
             exit(Reason);
         Error ->
-            erlang:error({badmatch, Error})
+            error({badmatch, Error})
     end.
 
 %%%------------------------------------------------------------------------------------------------
@@ -628,11 +616,9 @@ filtermap_recv(Pid, Counter, Threshold, Low, High) ->
                 false ->
                     case Index < Threshold of
                         true ->
-                            Pid ! {result, sort_result([{Index, Item} | Low], High)},
-                            exit(normal);
+                            Pid ! {result, sort_result([{Index, Item} | Low], High)};
                         false ->
-                            Pid ! {result, sort_result(Low, [{Index, Item} | High])},
-                            exit(normal)
+                            Pid ! {result, sort_result(Low, [{Index, Item} | High])}
                     end
             end;
         {_Index, false, _Item} ->
@@ -640,8 +626,7 @@ filtermap_recv(Pid, Counter, Threshold, Low, High) ->
                 true ->
                     filtermap_recv(Pid, Counter - 1, Threshold, Low, High);
                 false ->
-                    Pid ! {result, sort_result(Low, High)},
-                    exit(normal)
+                    Pid ! {result, sort_result(Low, High)}
             end;
         {Index, {true, Value}, _Item} ->
             case Counter > 1 of
@@ -655,17 +640,15 @@ filtermap_recv(Pid, Counter, Threshold, Low, High) ->
                 false ->
                     case Index < Threshold of
                         true ->
-                            Pid ! {result, sort_result([{Index, Value} | Low], High)},
-                            exit(normal);
+                            Pid ! {result, sort_result([{Index, Value} | Low], High)};
                         false ->
-                            Pid ! {result, sort_result(Low, [{Index, Value} | High])},
-                            exit(normal)
+                            Pid ! {result, sort_result(Low, [{Index, Value} | High])}
                     end
             end;
         {Pid, exit, Reason} ->
             exit(Reason);
         Error ->
-            erlang:error({badmatch, Error})
+            error({badmatch, Error})
     end.
 
 %%%------------------------------------------------------------------------------------------------
@@ -681,11 +664,10 @@ foreach_recv(Pid, Counter) ->
                 true ->
                     foreach_recv(Pid, Counter - 1);
                 false ->
-                    Pid ! {result, ok},
-                    exit(normal)
+                    Pid ! {result, ok}
             end;
         Error ->
-            erlang:error({badmatch, Error})
+            error({badmatch, Error})
     end.
 
 %%%------------------------------------------------------------------------------------------------
@@ -708,15 +690,13 @@ keymap_recv(Pid, Counter, Threshold, Low, High) ->
                 false ->
                     case Index < Threshold of
                         true ->
-                            Pid ! {result, sort_result([{Index, Value} | Low], High)},
-                            exit(normal);
+                            Pid ! {result, sort_result([{Index, Value} | Low], High)};
                         false ->
-                            Pid ! {result, sort_result(Low, [{Index, Value} | High])},
-                            exit(normal)
+                            Pid ! {result, sort_result(Low, [{Index, Value} | High])}
                     end
             end;
         Error ->
-            erlang:error({badmatch, Error})
+            error({badmatch, Error})
     end.
 
 %%%------------------------------------------------------------------------------------------------
@@ -739,15 +719,13 @@ map_recv(Pid, Counter, Threshold, Low, High) ->
                 false ->
                     case Index < Threshold of
                         true ->
-                            Pid ! {result, sort_result([{Index, Value} | Low], High)},
-                            exit(normal);
+                            Pid ! {result, sort_result([{Index, Value} | Low], High)};
                         false ->
-                            Pid ! {result, sort_result(Low, [{Index, Value} | High])},
-                            exit(normal)
+                            Pid ! {result, sort_result(Low, [{Index, Value} | High])}
                     end
             end;
         Error ->
-            erlang:error({badmatch, Error})
+            error({badmatch, Error})
     end.
 
 %%%------------------------------------------------------------------------------------------------
@@ -772,13 +750,11 @@ partition_recv(Pid, Counter, Threshold, {TLow, THigh} = TPart, {FLow, FHigh} = F
                         true ->
                             TSorted = sort_result([{Index, Item} | TLow], THigh),
                             FSorted = sort_result(FLow, FHigh),
-                            Pid ! {result, {TSorted, FSorted}},
-                            exit(normal);
+                            Pid ! {result, {TSorted, FSorted}};
                         false ->
                             TSorted = sort_result(TLow, [{Index, Item} | THigh]),
                             FSorted = sort_result(FLow, FHigh),
-                            Pid ! {result, {TSorted, FSorted}},
-                            exit(normal)
+                            Pid ! {result, {TSorted, FSorted}}
                     end
             end;
         {Index, false, Item} ->
@@ -797,19 +773,17 @@ partition_recv(Pid, Counter, Threshold, {TLow, THigh} = TPart, {FLow, FHigh} = F
                         true ->
                             TSorted = sort_result(TLow, THigh),
                             FSorted = sort_result([{Index, Item} | FLow], FHigh),
-                            Pid ! {result, {TSorted, FSorted}},
-                            exit(normal);
+                            Pid ! {result, {TSorted, FSorted}};
                         false ->
                             TSorted = sort_result(TLow, THigh),
                             FSorted = sort_result(FLow, [{Index, Item} | FHigh]),
-                            Pid ! {result, {TSorted, FSorted}},
-                            exit(normal)
+                            Pid ! {result, {TSorted, FSorted}}
                     end
             end;
         {Pid, exit, Reason} ->
             exit(Reason);
         Error ->
-            erlang:error({badmatch, Error})
+            error({badmatch, Error})
     end.
 
 %%%------------------------------------------------------------------------------------------------
@@ -817,8 +791,8 @@ partition_recv(Pid, Counter, Threshold, {TLow, THigh} = TPart, {FLow, FHigh} = F
 %%% Spawn new workers.
 %%%------------------------------------------------------------------------------------------------
 spawn_worker(MainPid, SenderPid, RecvPid, Fun, WorkerCounter, WorkerList) ->
-    erlang:process_flag(trap_exit, true),
-    Worker = erlang:spawn_link(?MODULE, fun_worker, [SenderPid, RecvPid, Fun]),
+    process_flag(trap_exit, true),
+    Worker = spawn_link(?MODULE, fun_worker, [SenderPid, RecvPid, Fun]),
     case WorkerCounter > 0 of
         true ->
             spawn_worker(MainPid, SenderPid, RecvPid, Fun, WorkerCounter - 1,
@@ -834,7 +808,7 @@ spawn_worker(MainPid, SenderPid, RecvPid, Fun, WorkerCounter, WorkerList) ->
             NewWorkerList = lists:delete(Pid, WorkerList),
             spawn_worker(MainPid, SenderPid, RecvPid, Fun, WorkerCounter, NewWorkerList);
         {'EXIT', Pid, _Reason} ->
-            NewWorker = erlang:spawn_link(?MODULE, fun_worker, [SenderPid, RecvPid, Fun]),
+            NewWorker = spawn_link(?MODULE, fun_worker, [SenderPid, RecvPid, Fun]),
             NewWorkerList = [NewWorker | lists:delete(Pid, WorkerList)],
             spawn_worker(MainPid, SenderPid, RecvPid, Fun, WorkerCounter, NewWorkerList)
     end.
@@ -844,8 +818,8 @@ spawn_worker(MainPid, SenderPid, RecvPid, Fun, WorkerCounter, WorkerList) ->
 %%% Spawn new workers for keymap/3 and keymap/5.
 %%%------------------------------------------------------------------------------------------------
 keymap_spawner(MainPid, SenderPid, RecvPid, Fun, N, WorkerCounter, WorkerList) ->
-    erlang:process_flag(trap_exit, true),
-    Worker = erlang:spawn_link(?MODULE, keymap_worker, [SenderPid, RecvPid, Fun, N]),
+    process_flag(trap_exit, true),
+    Worker = spawn_link(?MODULE, keymap_worker, [SenderPid, RecvPid, Fun, N]),
     case WorkerCounter > 0 of
         true ->
             keymap_spawner(MainPid, SenderPid, RecvPid, Fun, N, WorkerCounter - 1,
@@ -861,7 +835,7 @@ keymap_spawner(MainPid, SenderPid, RecvPid, Fun, N, WorkerCounter, WorkerList) -
             NewWorkerList = lists:delete(Pid, WorkerList),
             keymap_spawner(MainPid, SenderPid, RecvPid, Fun, N, WorkerCounter, NewWorkerList);
         {'EXIT', Pid, _Reason} ->
-            NewWorker = erlang:spawn_link(?MODULE, keymap_worker, [SenderPid, RecvPid, Fun, N]),
+            NewWorker = spawn_link(?MODULE, keymap_worker, [SenderPid, RecvPid, Fun, N]),
             NewWorkerList = [NewWorker | lists:delete(Pid, WorkerList)],
             keymap_spawner(MainPid, SenderPid, RecvPid, Fun, N, WorkerCounter, NewWorkerList)
     end.
@@ -877,8 +851,6 @@ fun_worker(SenderPid, RecvPid, Fun) ->
             exit(Reason);
         {Index, Arg} ->
             RecvPid ! {Index, Fun(Arg), Arg},
-            fun_worker(SenderPid, RecvPid, Fun);
-        _Msg ->
             fun_worker(SenderPid, RecvPid, Fun)
     end.
 
@@ -887,13 +859,12 @@ fun_worker(SenderPid, RecvPid, Fun) ->
 %%% Worker execute function for keymap/3 and keymap/5.
 %%%------------------------------------------------------------------------------------------------
 keymap_worker(SenderPid, RecvPid, Fun, N) ->
-    SenderPid ! {erlang:self(), ask_arg},
+    SenderPid ! {self(), ask_arg},
     receive
         {exit, Reason} ->
             exit(Reason);
         {Index, Arg} ->
-            RecvPid ! {Index, erlang:setelement(N, Arg, Fun(erlang:element(N, Arg)))};
-        _Msg ->
+            RecvPid ! {Index, setelement(N, Arg, Fun(element(N, Arg)))},
             keymap_worker(SenderPid, RecvPid, Fun, N)
     end.
 
@@ -916,15 +887,14 @@ sender(_Pid, [], Index) when Index >= 1 ->
             sender(_Pid, [], Index - 1)
     end;
 sender(_Pid, [], Index) when Index < 1 ->
-    exit(normal).
+    ok.
 
 %%%------------------------------------------------------------------------------------------------
 %%% @private
 %%% Worker sort result list.
 %%%------------------------------------------------------------------------------------------------
 sort_result_worker(Pid, Position, List) ->
-    Pid ! {Position, [Value || {_, Value} <- lists:keysort(1, List)]},
-    exit(normal).
+    Pid ! {Position, [Value || {_, Value} <- lists:keysort(1, List)]}.
 
 %%%================================================================================================
 %%% CODE FOR INTERNAL FUNCTIONS
@@ -933,16 +903,16 @@ sort_result_worker(Pid, Position, List) ->
 %%% Main process for functions that do list of functions.
 %%%------------------------------------------------------------------------------------------------
 fun_main_proc(Fun, List, MaxWorkrs, Timeout, MainPid, Length, RecvFun, RecvArgs) ->
-    erlang:process_flag(trap_exit, true),
+    process_flag(trap_exit, true),
     NumWorkrs = case MaxWorkrs > Length of
                      true ->
                          Length;
                      false ->
                          MaxWorkrs
                  end,
-    RPid = erlang:spawn_link(?MODULE, RecvFun, RecvArgs),
-    SPid = erlang:spawn_link(?MODULE, sender, [MainPid, List, 0]),
-    SpPid = erlang:spawn_link(?MODULE, spawn_worker, [MainPid, SPid, RPid, Fun, NumWorkrs, []]),
+    RPid = spawn_link(?MODULE, RecvFun, RecvArgs),
+    SPid = spawn_link(?MODULE, sender, [MainPid, List, 0]),
+    SpPid = spawn_link(?MODULE, spawn_worker, [MainPid, SPid, RPid, Fun, NumWorkrs, []]),
     receive
         {result, Result} ->
             RPid ! {MainPid, exit, nornal},
@@ -953,7 +923,7 @@ fun_main_proc(Fun, List, MaxWorkrs, Timeout, MainPid, Length, RecvFun, RecvArgs)
             RPid ! {MainPid, exit, nornal},
             SPid ! {MainPid, exit, normal},
             SpPid ! {MainPid, exit, normal},
-            erlang:error({proc_died, Pid, Reason})
+            error({proc_died, Pid, Reason})
     after
         Timeout ->
             RPid ! {MainPid, exit, normal},
@@ -975,10 +945,10 @@ send_msg(Msg, [H | T]) ->
 %%% Sort return list into original order
 %%%------------------------------------------------------------------------------------------------
 sort_result(Low, High) ->
-    erlang:process_flag(trap_exit, true),
+    process_flag(trap_exit, true),
     Self = self(),
-    LowPid = erlang:spawn_link(?MODULE, sort_result_worker, [Self, low, Low]),
-    HighPid = erlang:spawn_link(?MODULE, sort_result_worker, [Self, high, High]),
+    LowPid = spawn_link(?MODULE, sort_result_worker, [Self, low, Low]),
+    HighPid = spawn_link(?MODULE, sort_result_worker, [Self, high, High]),
     sort_result_recv(Self, {LowPid, Low}, {HighPid, High}, {low, high}).
 
 %%%------------------------------------------------------------------------------------------------
@@ -994,13 +964,13 @@ sort_result_recv(Self, {LPid, LList} = Low, {HPid, HList} = High, {LPart, HPart}
         {'EXIT', _ExitPid, normal} ->
             sort_result_recv(Self, Low, High, {LPart, HPart});
         {'EXIT', LPid, Reason} when Reason /= normal ->
-            NewLPid = erlang:spawn_link(?MODULE, sort_result_worker, [Self, low, LList]),
+            NewLPid = spawn_link(?MODULE, sort_result_worker, [Self, low, LList]),
             sort_result_recv(Self, {NewLPid, LList}, {HPid, HList}, {LPart, HPart});
         {'EXIT', HPid, Reason} when Reason /= normal ->
-            NewHPid = erlang:spawn_link(?MODULE, sort_result_worker, [Self, high, HList]),
+            NewHPid = spawn_link(?MODULE, sort_result_worker, [Self, high, HList]),
             sort_result_recv(Self, {LPid, LList}, {NewHPid, HList}, {LPart, HPart});
         Error ->
-            erlang:error({badmatch, Error})
+            error({badmatch, Error})
     end;
 sort_result_recv(_Self, _Low, _High, {LowPart, HighPart}) ->
     LowPart ++ HighPart.

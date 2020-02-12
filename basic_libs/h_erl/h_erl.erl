@@ -80,18 +80,18 @@ is_string(_Term) ->
     false.
 
 %%% Not yet finish.
-send_msg(Msg, Pids) when is_list(Pids) ->
-    lists:foreach(fun(X) ->
-                      if
-                          is_pid(X) ->
-                              X ! Msg;
-                          is_port(X) ->
-                              X ! Msg;
-                          true ->
-                              ok
-                      end end, Pids);
-send_msg(Msg, Pids) when is_tuple(Pids) ->
-    Msg.
+% send_msg(Msg, Pids) when is_list(Pids) ->
+%     lists:foreach(fun(X) ->
+%                       if
+%                           is_pid(X) ->
+%                               X ! Msg;
+%                           is_port(X) ->
+%                               X ! Msg;
+%                           true ->
+%                               ok
+%                       end end, Pids);
+% send_msg(Msg, Pids) when is_tuple(Pids) ->
+%     Msg.
 
 %%%------------------------------------------------------------------------------------------------
 %%% @spec string_to_list(String) -> List | {error, wrong_data_type}

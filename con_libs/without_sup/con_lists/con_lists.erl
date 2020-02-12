@@ -22,7 +22,7 @@
 -export([all/2, all/3,
          any/2, any/3,
          dropmap/2, dropmap/3,
-         filter/2, filter/3,
+         filter/2, filter/3,    
          filtermap/2, filtermap/3,
          flatmap/2, flatmap/3,
          foreach/2, foreach/3,
@@ -91,7 +91,7 @@ all(Fun, List) ->
 %%% @end
 %%%------------------------------------------------------------------------------------------------
 all(Fun, List, Timeout) ->
-    fun_main_proc(Fun, List, Timeout, all_recv, [erlang:self(), erlang:length(List)]).
+    fun_main_proc(Fun, List, Timeout, all_recv, [self(), length(List)]).
 
 %%%------------------------------------------------------------------------------------------------
 %%% @spec any(Fun, List) -> boolean() | timeout
@@ -121,7 +121,7 @@ any(Fun, List) ->
 %%% @end
 %%%------------------------------------------------------------------------------------------------
 any(Fun, List, Timeout) ->
-    fun_main_proc(Fun, List, Timeout, any_recv, [erlang:self(), erlang:length(List)]).
+    fun_main_proc(Fun, List, Timeout, any_recv, [self(), length(List)]).
 
 %%%------------------------------------------------------------------------------------------------
 %%% @spec dropmap(Fun, List) -> List1 | timeout
@@ -155,8 +155,8 @@ dropmap(Fun, List) ->
 %%% @end
 %%%------------------------------------------------------------------------------------------------
 dropmap(Fun, List, Timeout) ->
-    Length = erlang:length(),
-    fun_main_proc(Fun, List, Timeout, dropmap_recv, [erlang:self(), Length, Length div 2, [], []]).
+    Length = length(List),
+    fun_main_proc(Fun, List, Timeout, dropmap_recv, [self(), Length, Length div 2, [], []]).
 
 %%%------------------------------------------------------------------------------------------------
 %%% @spec filter(Fun, List) -> List1 | timeout
@@ -185,8 +185,8 @@ filter(Fun, List) ->
 %%% @end
 %%%------------------------------------------------------------------------------------------------
 filter(Fun, List, Timeout) ->
-    Length = erlang:length(List),
-    fun_main_proc(Fun, List, Timeout, filter_recv, [erlang:self(), Length, Length div 2, [], []]).
+    Length = length(List),
+    fun_main_proc(Fun, List, Timeout, filter_recv, [self(), Length, Length div 2, [], []]).
 
 %%%------------------------------------------------------------------------------------------------
 %%% @spec filtermap(Fun, List) -> List1 | timeout
@@ -219,8 +219,8 @@ filtermap(Fun, List) ->
 %%% @end
 %%%------------------------------------------------------------------------------------------------
 filtermap(Fun, List, Timeout) ->
-    Len = erlang:length(List),
-    fun_main_proc(Fun, List, Timeout, filtermap_recv, [erlang:self(), Len, Len div 2, [], []]).
+    Len = length(List),
+    fun_main_proc(Fun, List, Timeout, filtermap_recv, [self(), Len, Len div 2, [], []]).
 
 %%%------------------------------------------------------------------------------------------------
 %%% @spec flatmap(Fun, List) -> List1 | timeout
@@ -282,8 +282,8 @@ foreach(Fun, List) ->
 %%% @end
 %%%------------------------------------------------------------------------------------------------
 foreach(Fun, List, Timeout) ->
-    Length = erlang:length(List),
-    fun_main_proc(Fun, List, Timeout, foreach_recv, [erlang:self(), Length]).
+    Length = length(List),
+    fun_main_proc(Fun, List, Timeout, foreach_recv, [self(), Length]).
 
 %%%------------------------------------------------------------------------------------------------
 %%% @spec keymap(Fun, N, TupleList) -> TupleList1 | timeout
@@ -315,9 +315,9 @@ keymap(Fun, N, List) ->
 %%% @end
 %%%------------------------------------------------------------------------------------------------
 keymap(Fun, N, List, Timeout) ->
-    Len = erlang:length(List),
-    RecvPid = erlang:spawn(?MODULE, keymap_recv, [erlang:self(), Len, Len div 2, [], []]),
-    SpawnerPid = erlang:spawn(?MODULE, keymap_spawner, [RecvPid, Fun, N, List, 0]),
+    Len = length(List),
+    RecvPid = spawn(?MODULE, keymap_recv, [self(), Len, Len div 2, [], []]),
+    SpawnerPid = spawn(?MODULE, keymap_spawner, [RecvPid, Fun, N, List, 0]),
     receive
         {result, Result} ->
             SpawnerPid ! got_result,
@@ -359,7 +359,8 @@ map(Fun, List) ->
 %%% @end
 %%%------------------------------------------------------------------------------------------------
 map(Fun, List, Timeout) ->
-    fun_main_proc(Fun, List, Timeout, map_recv, [erlang:self(), erlang:length(List)]).
+    Len = length(List),
+    fun_main_proc(Fun, List, Timeout, map_recv, [self(), Len, Len div 2, [], []]).
 
 %%%------------------------------------------------------------------------------------------------
 %%% @spec partition(Fun, List) -> {Satisfying, NotSatisfying} | timeout
@@ -391,7 +392,7 @@ partition(Fun, List) ->
 %%% @end
 %%%------------------------------------------------------------------------------------------------
 partition(Fun, List, Timeout) ->
-    L = erlang:length(List),
+    L = length(List),
     fun_main_proc(Fun, List, Timeout, partition_recv, [self(), L, L div 2, {[], []}, {[], []}]).
 
 %%%================================================================================================
@@ -408,14 +409,12 @@ all_recv(Pid, Counter) ->
                 true ->
                     all_recv(Pid, Counter - 1);
                 false ->
-                    Pid ! {result, true},
-                    exit(done)
+                    Pid ! {result, true}
             end;
         {_Index, false, _Item} ->
-            Pid ! {result, false},
-            exit(done);
+            Pid ! {result, false};
         timeout ->
-            exit(timeout);
+            timeout;
         Error ->
             throw({error, {badmatch, Error}})
     end.
@@ -431,14 +430,12 @@ any_recv(Pid, Counter) ->
                 true ->
                     any_recv(Pid, Counter - 1);
                 false ->
-                    Pid ! {result, false},
-                    exit(done)
+                    Pid ! {result, false}
             end;
         {_Index, true, _Item} ->
-            Pid ! {result, true},
-            exit(done);
+            Pid ! {result, true};
         timeout ->
-            exit(timeout);
+            timeout;
         Error ->
             throw({error, {badmatch, Error}})
     end.
@@ -454,8 +451,7 @@ dropmap_recv(Pid, Counter, Threshold, Low, High) ->
                 true ->
                     dropmap_recv(Pid, Counter - 1, Threshold, Low, High);
                 false ->
-                    Pid ! {result, sort_result(Low, High)},
-                    exit(done)
+                    Pid ! {result, sort_result(Low, High)}
             end;
         {Index, false, Item} ->
             case Counter > 1 of
@@ -469,11 +465,9 @@ dropmap_recv(Pid, Counter, Threshold, Low, High) ->
                 false ->
                     case Index < Threshold of
                         true ->
-                            Pid ! {result, sort_result([{Index, Item} | Low], High)},
-                            exit(done);
+                            Pid ! {result, sort_result([{Index, Item} | Low], High)};
                         false ->
-                            Pid ! {result, sort_result(Low, [{Index, Item} | High])},
-                            exit(done)
+                            Pid ! {result, sort_result(Low, [{Index, Item} | High])}
                     end
             end;
         {Index, {false, Value}, _Item} ->
@@ -488,15 +482,13 @@ dropmap_recv(Pid, Counter, Threshold, Low, High) ->
                 false ->
                     case Index < Threshold of
                         true ->
-                            Pid ! {result, sort_result([{Index, Value} | Low], High)},
-                            exit(done);
+                            Pid ! {result, sort_result([{Index, Value} | Low], High)};
                         false ->
-                            Pid ! {result, sort_result(Low, [{Index, Value} | High])},
-                            exit(done)
+                            Pid ! {result, sort_result(Low, [{Index, Value} | High])}
                     end
             end;
         timeout ->
-            exit(timeout);
+            timeout;
         Error ->
             throw({error, {badmatch, Error}})
     end.
@@ -519,11 +511,9 @@ filter_recv(Pid, Counter, Threshold, Low, High) ->
                 false ->
                     case Index < Threshold of
                         true ->
-                            Pid ! {result, sort_result([{Index, Item} | Low], High)},
-                            exit(done);
+                            Pid ! {result, sort_result([{Index, Item} | Low], High)};
                         false ->
-                            Pid ! {result, sort_result(Low, [{Index, Item} | High])},
-                            exit(done)
+                            Pid ! {result, sort_result(Low, [{Index, Item} | High])}
                     end
             end;
         {_Index, false, _Item} ->
@@ -531,11 +521,10 @@ filter_recv(Pid, Counter, Threshold, Low, High) ->
                 true ->
                     filter_recv(Pid, Counter - 1, Threshold, Low, High);
                 false ->
-                    Pid ! {result, sort_result(Low, High)},
-                    exit(done)
+                    Pid ! {result, sort_result(Low, High)}
             end;
         timeout ->
-            exit(timeout);
+            timeout;
         Error ->
             throw({error, {badmatch, Error}})
     end.
@@ -558,11 +547,9 @@ filtermap_recv(Pid, Counter, Threshold, Low, High) ->
                 false ->
                     case Index < Threshold of
                         true ->
-                            Pid ! {result, sort_result([{Index, Item} | Low], High)},
-                            exit(done);
+                            Pid ! {result, sort_result([{Index, Item} | Low], High)};
                         false ->
-                            Pid ! {result, sort_result(Low, [{Index, Item} | High])},
-                            exit(done)
+                            Pid ! {result, sort_result(Low, [{Index, Item} | High])}
                     end
             end;
         {_Index, false, _Item} ->
@@ -570,8 +557,7 @@ filtermap_recv(Pid, Counter, Threshold, Low, High) ->
                 true ->
                     filtermap_recv(Pid, Counter - 1, Threshold, Low, High);
                 false ->
-                    Pid ! {result, sort_result(Low, High)},
-                    exit(done)
+                    Pid ! {result, sort_result(Low, High)}
             end;
         {Index, {true, Value}, _Item} ->
             case Counter > 1 of
@@ -585,15 +571,13 @@ filtermap_recv(Pid, Counter, Threshold, Low, High) ->
                 false ->
                     case Index < Threshold of
                         true ->
-                            Pid ! {result, sort_result([{Index, Value} | Low], High)},
-                            exit(done);
+                            Pid ! {result, sort_result([{Index, Value} | Low], High)};
                         false ->
-                            Pid ! {result, sort_result(Low, [{Index, Value} | High])},
-                            exit(done)
+                            Pid ! {result, sort_result(Low, [{Index, Value} | High])}
                     end
             end;
         timeout ->
-            exit(timeout);
+            timeout;
         Error ->
             throw({error, {badmatch, Error}})
     end.
@@ -609,11 +593,10 @@ foreach_recv(Pid, Counter) ->
                 true ->
                     foreach_recv(Pid, Counter - 1);
                 false ->
-                    Pid ! {result, ok},
-                    exit(done)
+                    Pid ! {result, ok}
             end;
         timeout ->
-            exit(timeout);
+            timeout;
         Error ->
             throw({error, {badmatch, Error}})
     end.
@@ -636,15 +619,13 @@ keymap_recv(Pid, Counter, Threshold, Low, High) ->
                 false ->
                     case Index < Threshold of
                         true ->
-                            Pid ! {result, sort_result([{Index, Value} | Low], High)},
-                            exit(normal);
+                            Pid ! {result, sort_result([{Index, Value} | Low], High)};
                         false ->
-                            Pid ! {result, sort_result(Low, [{Index, Value} | High])},
-                            exit(normal)
+                            Pid ! {result, sort_result(Low, [{Index, Value} | High])}
                     end
             end;
         timeout ->
-            exit(timeout);
+            timeout;
         Error ->
             throw({error, {badmatch, Error}})
     end.
@@ -667,15 +648,13 @@ map_recv(Pid, Counter, Threshold, Low, High) ->
                 false ->
                     case Index < Threshold of
                         true ->
-                            Pid ! {result, sort_result([{Index, Result} | Low], High)},
-                            exit(done);
+                            Pid ! {result, sort_result([{Index, Result} | Low], High)};
                         false ->
-                            Pid ! {result, sort_result(Low, [{Index, Result} | High])},
-                            exit(done)
+                            Pid ! {result, sort_result(Low, [{Index, Result} | High])}
                     end
             end;
         timeout ->
-            exit(timeout);
+            timeout;
         Error ->
             throw({error, {badmatch, Error}})
     end.
@@ -702,13 +681,11 @@ partition_recv(Pid, Counter, Threshold, {TLow, THigh} = TPart, {FLow, FHigh} = F
                         true ->
                             TSorted = sort_result([{Index, Item} | TLow], THigh),
                             FSorted = sort_result(FLow, FHigh),
-                            Pid ! {result, {TSorted, FSorted}},
-                            exit(done);
+                            Pid ! {result, {TSorted, FSorted}};
                         false ->
                             TSorted = sort_result(TLow, [{Index, Item} | THigh]),
                             FSorted = sort_result(FLow, FHigh),
-                            Pid ! {result, {TSorted, FSorted}},
-                            exit(done)
+                            Pid ! {result, {TSorted, FSorted}}
                     end
             end;
         {Index, false, Item} ->
@@ -727,17 +704,15 @@ partition_recv(Pid, Counter, Threshold, {TLow, THigh} = TPart, {FLow, FHigh} = F
                         true ->
                             TSorted = sort_result(TLow, THigh),
                             FSorted = sort_result([{Index, Item} | FLow], FHigh),
-                            Pid ! {result, {TSorted, FSorted}},
-                            exit(done);
+                            Pid ! {result, {TSorted, FSorted}};
                         false ->
                             TSorted = sort_result(TLow, THigh),
                             FSorted = sort_result(FLow, [{Index, Item} | FHigh]),
-                            Pid ! {result, {TSorted, FSorted}},
-                            exit(done)
+                            Pid ! {result, {TSorted, FSorted}}
                     end
             end;
         timeout ->
-            exit(timeout);
+            timeout;
         Error ->
             throw({error, {badmatch, Error}})
     end.
@@ -753,11 +728,9 @@ spawn_worker(Pid, Fun, [H | T], Counter) ->
     spawn_worker(Pid, Fun, T, Counter + 1),
     receive
         got_result ->
-            exit(got_result);
+            got_result;
         timeout ->
-            exit(timeout);
-        _Msg ->
-            spawn_worker(Pid, Fun, [H | T], Counter)
+            timeout
     end.
 
 %%%------------------------------------------------------------------------------------------------
@@ -771,11 +744,9 @@ keymap_spawner(Pid, Fun, N, [H | T], Counter) ->
     keymap_spawner(Pid, Fun, N, T, Counter + 1),
     receive
         got_result ->
-            exit(got_result);
+            got_result;
         timeout ->
-            exit(timeout);
-        _Msg ->
-            keymap_spawner(Pid, Fun, N, [H | T], Counter)
+            timeout
     end.
 
 %%%------------------------------------------------------------------------------------------------
@@ -783,24 +754,21 @@ keymap_spawner(Pid, Fun, N, [H | T], Counter) ->
 %%% Worker execute function.
 %%%------------------------------------------------------------------------------------------------
 fun_worker(Pid, Fun, Arg, Index) ->
-    Pid ! {Index, Fun(Arg), Arg},
-    exit(done).
+    Pid ! {Index, Fun(Arg), Arg}.
 
 %%%------------------------------------------------------------------------------------------------
 %%% @private
 %%% Worker execute function for keymap/3 and keymap/4.
 %%%------------------------------------------------------------------------------------------------
 keymap_worker(Pid, Fun, N, Arg, Index) ->
-    Pid ! {Index, erlang:setelement(N, Arg, Fun(erlang:element(N, Arg)))},
-    exit(done).
+    Pid ! {Index, setelement(N, Arg, Fun(element(N, Arg)))}.
 
 %%%------------------------------------------------------------------------------------------------
 %%% @private
 %%% Worker sort result list into original order.
 %%%------------------------------------------------------------------------------------------------
 sort_result_worker(Pid, Position, List) ->
-    Pid ! {Position, [Value || {_, Value} <- lists:keysort(1, List)]},
-    exit(done).
+    Pid ! {Position, [Value || {_, Value} <- lists:keysort(1, List)]}.
 
 %%%================================================================================================
 %%% CODE FOR INTERNAL FUNCTIONS
@@ -809,8 +777,8 @@ sort_result_worker(Pid, Position, List) ->
 %%% Main process for functions that do list of functions.
 %%%------------------------------------------------------------------------------------------------
 fun_main_proc(Fun, List, Timeout, RecvFun, RecvArgs) ->
-    RecvPid = erlang:spawn(?MODULE, RecvFun, RecvArgs),
-    SpawnerPid = erlang:spawn(?MODULE, spawn_worker, [RecvPid, Fun, List, 0]),
+    RecvPid = spawn(?MODULE, RecvFun, RecvArgs),
+    SpawnerPid = spawn(?MODULE, spawn_worker, [RecvPid, Fun, List, 0]),
     receive
         {result, Result} ->
             SpawnerPid ! got_result,
@@ -826,8 +794,8 @@ fun_main_proc(Fun, List, Timeout, RecvFun, RecvArgs) ->
 %%% Sort return list into original order.
 %%%------------------------------------------------------------------------------------------------
 sort_result(Low, High) ->
-    erlang:spawn(?MODULE, sort_result_worker, [self(), low, Low]),
-    erlang:spawn(?MODULE, sort_result_worker, [self(), high, High]),
+    spawn(?MODULE, sort_result_worker, [self(), low, Low]),
+    spawn(?MODULE, sort_result_worker, [self(), high, High]),
     sort_result_recv(low, high).
 
 %%%------------------------------------------------------------------------------------------------

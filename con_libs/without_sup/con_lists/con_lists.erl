@@ -806,9 +806,7 @@ sort_result_recv(LowPart, HighPart) when LowPart == low; HighPart == high ->
         {low, Sorted} ->
             sort_result_recv(Sorted, HighPart);
         {high, Sorted} ->
-            sort_result_recv(LowPart, Sorted);
-        _Msg ->
-            sort_result_recv(LowPart, HighPart)
+            sort_result_recv(LowPart, Sorted)
     end;
 sort_result_recv(LowPart, HighPart) ->
     LowPart ++ HighPart.

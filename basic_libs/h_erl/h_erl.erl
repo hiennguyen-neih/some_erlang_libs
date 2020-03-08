@@ -14,6 +14,7 @@
 %%% 1. EXPORT_FUNCTIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -export([is_string/1,
+         send_msg/2,
          string_to_list/1,
          to_list/1,
          type_of/1]).
@@ -79,19 +80,40 @@ is_string(Term) when is_binary(Term) ->
 is_string(_Term) ->
     false.
 
-%%% Not yet finish.
-% send_msg(Msg, Pids) when is_list(Pids) ->
-%     lists:foreach(fun(X) ->
-%                       if
-%                           is_pid(X) ->
-%                               X ! Msg;
-%                           is_port(X) ->
-%                               X ! Msg;
-%                           true ->
-%                               ok
-%                       end end, Pids);
-% send_msg(Msg, Pids) when is_tuple(Pids) ->
-%     Msg.
+%%%------------------------------------------------------------------------------------------------
+%%% @spec send_msg(Message, Ps) -> ok
+%%% @doc
+%%% <pre>
+%%% === Type ===
+%%%     Msg = term()
+%%%     Ps = pids() | ports()
+%%%     pids() = pid() | [pid()] | {pid()} | array(pid())
+%%%     ports() = port() | [port()] | {port()} | array(port())
+%%% === Description ===
+%%%     Send a Message to a collection (an item, a list, a tuple or an array) of pid or port.
+%%%     This function will throw a badarg error if Ps not a collection of pid or port.
+%%% === Example ===
+%%% ```
+%%%     h_erl:send_msg(ok, [<0.99.0>, <0.100.0>, <0.101.0>]).
+%%% '''
+%%% </pre>
+%%% @end
+%%%------------------------------------------------------------------------------------------------
+send_msg(Msg, [H | T]) ->
+    H ! Msg,
+    send_msg(Msg, T);
+send_msg(_Msg, []) ->
+    ok;
+send_msg(Msg, Ps) when is_tuple(Ps) ->
+    case array:is_array(Ps) of
+        false ->
+            send_msg(Msg, tuple_to_list(Ps));
+        true ->
+            send_msg(Msg, array:to_list(Ps))
+    end;
+send_msg(Msg, P) ->
+    P ! Msg,
+    ok.
 
 %%%------------------------------------------------------------------------------------------------
 %%% @spec string_to_list(String) -> List | {error, wrong_data_type}

@@ -35,6 +35,19 @@
    <h4><a name="Example">Example</a></h4>
    <pre>       h_erl:is_string(&lt;&lt;"neih"/utf8&gt;&gt;).</pre>
    </pre></td></tr>
+<tr><td valign="top"><a href="#send_msg-2">send_msg/2</a></td><td>
+   <pre>
+   <h4><a name="Type">Type</a></h4>
+       Msg = term()
+       Ps = pids() | ports()
+       pids() = pid() | [pid()] | {pid()} | array(pid())
+       ports() = port() | [port()] | {port()} | array(port())
+   <h4><a name="Description">Description</a></h4>
+       Send a Message to a collection (an item, a list, a tuple or an array) of pid or port.
+       This function will throw a badarg error if Ps not a collection of pid or port.
+   <h4><a name="Example">Example</a></h4>
+   <pre>       h_erl:send_msg(ok, [&lt;0.99.0&gt;, &lt;0.100.0&gt;, &lt;0.101.0&gt;]).</pre>
+   </pre></td></tr>
 <tr><td valign="top"><a href="#string_to_list-1">string_to_list/1</a></td><td>
    <pre>
    <h4><a name="Type">Type</a></h4>
@@ -92,6 +105,23 @@
        NOTE: This function DOESN'T work on unicode chardata.
    <h4><a name="Example">Example</a></h4>
    <pre>       h_erl:is_string(&lt;&lt;"neih"/utf8&gt;&gt;).</pre>
+   </pre></p>
+
+<h3 class="function"><a name="send_msg-2">send_msg/2</a></h3>
+<div class="spec">
+<p><tt>send_msg(Msg::Message, T::Ps) -&gt; ok</tt><br></p>
+</div><p>
+   <pre>
+   <h4><a name="Type">Type</a></h4>
+       Msg = term()
+       Ps = pids() | ports()
+       pids() = pid() | [pid()] | {pid()} | array(pid())
+       ports() = port() | [port()] | {port()} | array(port())
+   <h4><a name="Description">Description</a></h4>
+       Send a Message to a collection (an item, a list, a tuple or an array) of pid or port.
+       This function will throw a badarg error if Ps not a collection of pid or port.
+   <h4><a name="Example">Example</a></h4>
+   <pre>       h_erl:send_msg(ok, [&lt;0.99.0&gt;, &lt;0.100.0&gt;, &lt;0.101.0&gt;]).</pre>
    </pre></p>
 
 <h3 class="function"><a name="string_to_list-1">string_to_list/1</a></h3>
